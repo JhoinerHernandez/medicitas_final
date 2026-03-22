@@ -1,5 +1,6 @@
 """
 routes/paciente.py — Panel del paciente. PyMySQL puro.
+El médico se asigna automáticamente según el tipo de cita seleccionado.
 """
 from flask import (Blueprint, render_template, request,
                    redirect, url_for, flash, session, current_app)
@@ -74,32 +75,18 @@ def nueva_cita():
         flash('Tu perfil no tiene cédula registrada.', 'danger')
         return redirect(url_for('paciente_bp.panel'))
 
-    conn = get_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT id, nombre, especialidad FROM medicos "
-                "WHERE activo=1 ORDER BY especialidad, nombre"
-            )
-            medicos = cur.fetchall()
-    except Exception:
-        medicos = []
-    finally:
-        conn.close()
-
     if request.method == 'POST':
-        id_medico = request.form.get('medico',   '').strip()
-        tipo      = request.form.get('tipoCita', '').strip()
-        fecha     = request.form.get('fechaCita','').strip()
-        hora      = request.form.get('horaCita', '').strip()
-        eps_key   = request.form.get('eps',      '').strip()
+        tipo    = request.form.get('tipoCita', '').strip()
+        fecha   = request.form.get('fechaCita','').strip()
+        hora    = request.form.get('horaCita', '').strip()
+        eps_key = request.form.get('eps',      '').strip()
 
+        # ── Validaciones ──────────────────────────────────────────
         errores = []
-        if not id_medico: errores.append('Selecciona un médico.')
-        if not tipo:      errores.append('Selecciona el tipo de cita.')
-        if not fecha:     errores.append('Selecciona la fecha.')
-        if not hora:      errores.append('Selecciona la hora.')
-        if not eps_key:   errores.append('Selecciona tu EPS.')
+        if not tipo:    errores.append('Selecciona el tipo de cita.')
+        if not fecha:   errores.append('Selecciona la fecha.')
+        if not hora:    errores.append('Selecciona la hora.')
+        if not eps_key: errores.append('Selecciona tu EPS.')
         if fecha:
             try:
                 if date.fromisoformat(fecha) < date.today():
@@ -110,8 +97,28 @@ def nueva_cita():
         if errores:
             for e in errores:
                 flash(e, 'danger')
-            return render_template('nueva_cita_paciente.html', medicos=medicos)
+            return render_template('nueva_cita_paciente.html')
 
+        # ── Asignar médico automáticamente según tipo de cita ─────
+        conn_med = get_connection()
+        try:
+            with conn_med.cursor() as cur:
+                cur.execute(
+                    "SELECT id, nombre FROM medicos "
+                    "WHERE especialidad = %s AND activo = 1 LIMIT 1",
+                    (tipo,)
+                )
+                medico_row = cur.fetchone()
+        finally:
+            conn_med.close()
+
+        if not medico_row:
+            flash(f'No hay médico disponible para {tipo}. Contacta al administrador.', 'danger')
+            return render_template('nueva_cita_paciente.html')
+
+        id_medico = medico_row['id']
+
+        # ── Verificar disponibilidad de horario ───────────────────
         conn2 = get_connection()
         try:
             with conn2.cursor() as cur:
@@ -122,7 +129,7 @@ def nueva_cita():
                 )
                 if cur.fetchone():
                     flash('Ese médico ya tiene una cita a esa hora. Elige otro horario.', 'danger')
-                    return render_template('nueva_cita_paciente.html', medicos=medicos)
+                    return render_template('nueva_cita_paciente.html')
 
                 direccion = current_app.config['EPS_DIRECCIONES'].get(eps_key, '')
                 cur.execute(
@@ -132,7 +139,7 @@ def nueva_cita():
                     (cedula, id_medico, tipo, fecha, hora, eps_key, direccion)
                 )
             conn2.commit()
-            flash('¡Cita reservada exitosamente!', 'success')
+            flash(f'¡Cita reservada exitosamente con {medico_row["nombre"]}!', 'success')
             return redirect(url_for('paciente_bp.panel'))
         except Exception as e:
             conn2.rollback()
@@ -140,7 +147,7 @@ def nueva_cita():
         finally:
             conn2.close()
 
-    return render_template('nueva_cita_paciente.html', medicos=medicos)
+    return render_template('nueva_cita_paciente.html')
 
 
 @paciente_bp.route('/cancelar/<int:id_cita>', methods=['POST'])
