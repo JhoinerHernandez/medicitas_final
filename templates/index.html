@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-med">
+  <div class="hero-med-grid"></div>
+  <div class="container position-relative" style="z-index:1">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <div class="hero-eyebrow fade-up">
+          <span class="dot"></span> Sistema de Gestión Médica
+        </div>
+        <h1 class="hero-med-title fade-up d1">
+          Gestión de Citas
+          <span>Médicas Eficiente</span>
+        </h1>
+        <p class="hero-med-text fade-up d2">
+          Plataforma integral para la administración de pacientes y citas médicas.
+          Registro, reserva, consulta y actualización en un solo lugar.
+        </p>
+        <div class="hero-actions fade-up d3">
+          <a href="{{ url_for('citas.reservar') }}" class="btn-med btn-med-white btn-lg-med">
+            <i class="fas fa-calendar-plus"></i> Reservar Cita
+          </a>
+          <a href="{{ url_for('dashboard.panel') }}"
+             class="btn-med btn-lg-med"
+             style="color:#fff;border:2px solid rgba(255,255,255,.35);background:transparent;"
+             onmouseover="this.style.background='rgba(255,255,255,.1)'"
+             onmouseout="this.style.background='transparent'">
+            <i class="fas fa-th-large"></i> Ir al Panel
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block hero-graphic">
+        <div class="hero-card-float hero-card-float-1">
+          <div class="hero-float-icon"><i class="fas fa-user-injured"></i></div>
+          <div class="hero-float-val">—</div>
+          <div class="hero-float-lbl">Pacientes activos</div>
+        </div>
+        <div class="hero-card-float hero-card-float-2">
+          <div class="hero-float-icon"><i class="fas fa-calendar-check"></i></div>
+          <div class="hero-float-val">—</div>
+          <div class="hero-float-lbl">Citas hoy</div>
+        </div>
+        <div class="hero-card-float hero-card-float-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="fas fa-stethoscope" style="font-size:1rem;"></i>
+            <span style="font-size:.85rem;opacity:.8;">Sistema Médico</span>
+          </div>
+          <div style="font-weight:700;">MediCitas</div>
+          <div style="opacity:.65;font-size:.72rem;">Conectado y operativo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Accesos rápidos -->
+<section class="py-4" style="background:var(--white);border-bottom:1px solid var(--gray-200);">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6 col-md-3" data-reveal>
+        <a href="{{ url_for('pacientes.registrar') }}"
+           class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none"
+           style="background:var(--sapphire-lt);color:var(--sapphire);border:1px solid rgba(26,75,140,.12);">
+          <div style="width:40px;height:40px;background:var(--sapphire);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0;">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:.9rem;font-weight:700;">Registrar</div>
+            <div style="font-size:.75rem;opacity:.75;">Nuevo paciente</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3" data-reveal data-reveal-delay="80">
+        <a href="{{ url_for('citas.reservar') }}"
+           class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none"
+           style="background:var(--teal-lt);color:var(--teal);border:1px solid rgba(13,138,126,.12);">
+          <div style="width:40px;height:40px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0;">
+            <i class="fas fa-calendar-plus"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:.9rem;font-weight:700;">Reservar</div>
+            <div style="font-size:.75rem;opacity:.75;">Nueva cita</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3" data-reveal data-reveal-delay="160">
+        <a href="{{ url_for('citas.consultar') }}"
+           class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none"
+           style="background:var(--amber-lt);color:var(--amber);border:1px solid rgba(217,119,6,.12);">
+          <div style="width:40px;height:40px;background:var(--amber);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0;">
+            <i class="fas fa-search"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:.9rem;font-weight:700;">Consultar</div>
+            <div style="font-size:.75rem;opacity:.75;">Ver mi cita</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3" data-reveal data-reveal-delay="240">
+        <a href="{{ url_for('citas.actualizar') }}"
+           class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none"
+           style="background:var(--rose-lt);color:var(--rose);border:1px solid rgba(190,24,93,.12);">
+          <div style="width:40px;height:40px;background:var(--rose);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0;">
+            <i class="fas fa-edit"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:.9rem;font-weight:700;">Actualizar</div>
+            <div style="font-size:.75rem;opacity:.75;">Modificar cita</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Características -->
+<section class="py-5" style="background:var(--arctic);">
+  <div class="container">
+    <div class="text-center mb-5" data-reveal>
+      <div class="section-label justify-content-center">Funcionalidades</div>
+      <h2 class="section-title">Todo lo que necesitas</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3" data-reveal>
+        <div class="feature-card">
+          <div class="feature-card-icon bg-sapphire-lt text-sapphire"><i class="fas fa-user-shield"></i></div>
+          <h5 class="feature-card-title">Registro de Pacientes</h5>
+          <p class="feature-card-text">Registra y gestiona la información de cada paciente con sus datos de contacto y EPS.</p>
+          <a href="{{ url_for('pacientes.registrar') }}" class="btn-med btn-med-secondary btn-sm-med mt-3">
+            Ir al formulario <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-reveal data-reveal-delay="100">
+        <div class="feature-card">
+          <div class="feature-card-icon bg-teal-lt text-teal"><i class="fas fa-calendar-alt"></i></div>
+          <h5 class="feature-card-title">Reserva de Citas</h5>
+          <p class="feature-card-text">Agenda citas médicas con médico, tipo de consulta, fecha, hora y dirección EPS.</p>
+          <a href="{{ url_for('citas.reservar') }}" class="btn-med btn-med-secondary btn-sm-med mt-3" style="background:var(--teal-lt);color:var(--teal);">
+            Reservar cita <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-reveal data-reveal-delay="200">
+        <div class="feature-card">
+          <div class="feature-card-icon bg-amber-lt text-amber"><i class="fas fa-file-medical-alt"></i></div>
+          <h5 class="feature-card-title">Consulta de Citas</h5>
+          <p class="feature-card-text">Consulta el estado de una cita ingresando el número de identificación.</p>
+          <a href="{{ url_for('citas.consultar') }}" class="btn-med btn-med-secondary btn-sm-med mt-3" style="background:var(--amber-lt);color:var(--amber);">
+            Consultar <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-reveal data-reveal-delay="300">
+        <div class="feature-card">
+          <div class="feature-card-icon bg-rose-lt text-rose"><i class="fas fa-pen-to-square"></i></div>
+          <h5 class="feature-card-title">Actualización</h5>
+          <p class="feature-card-text">Modifica los datos de una cita: fecha, hora, médico y tipo de consulta.</p>
+          <a href="{{ url_for('citas.actualizar') }}" class="btn-med btn-med-secondary btn-sm-med mt-3" style="background:var(--rose-lt);color:var(--rose);">
+            Actualizar <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Paciente{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <nav class="med-breadcrumb">
+      <a href="{{ url_for('index') }}">Inicio</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span>Registrar Paciente</span>
+    </nav>
+    <div class="page-header-icon"><i class="fas fa-user-plus"></i></div>
+    <h1 class="page-header-title">Registrar Nuevo Paciente</h1>
+    <p class="page-header-sub">Complete todos los campos para crear el registro del paciente.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+      <div class="alert-med alert-med-info fade-up mb-4">
+        <i class="fas fa-info-circle"></i>
+        <div>Los campos marcados con <strong>*</strong> son obligatorios.</div>
+      </div>
+
+      <div class="med-card fade-up d1">
+        <div class="med-card-header">
+          <div class="med-card-header-icon bg-sapphire-lt text-sapphire"><i class="fas fa-id-card"></i></div>
+          <div>
+            <h2 class="med-card-title">Datos del Paciente</h2>
+            <p class="med-card-subtitle">Información personal y de contacto</p>
+          </div>
+        </div>
+
+        <div class="med-card-body">
+          <!-- action apunta al endpoint de Flask -->
+          <form method="POST" action="{{ url_for('pacientes.registrar') }}" novalidate>
+
+            <!-- Identificación -->
+            <div class="form-section-head">
+              <div class="form-section-num">1</div>
+              <h6 class="form-section-title">Identificación</h6>
+            </div>
+            <div class="form-group-med">
+              <label class="form-label-med" for="cedula">
+                <i class="fas fa-id-badge"></i> Número de Identificación <span class="req">*</span>
+              </label>
+              <div class="input-icon-wrap">
+                <i class="input-icon fas fa-hashtag"></i>
+                <input type="text" id="cedula" name="cedula" class="form-control-med"
+                       placeholder="Ej: 1234567890"
+                       value="{{ form.cedula if form else '' }}"
+                       inputmode="numeric" maxlength="12" required />
+              </div>
+              <div class="form-help-med">Solo números, entre 6 y 12 dígitos.</div>
+            </div>
+
+            <!-- Datos personales -->
+            <div class="form-section-head">
+              <div class="form-section-num">2</div>
+              <h6 class="form-section-title">Datos Personales</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="nombre">
+                    <i class="fas fa-user"></i> Nombre(s) <span class="req">*</span>
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-user"></i>
+                    <input type="text" id="nombre" name="nombre" class="form-control-med"
+                           placeholder="Ej: Carlos Andrés"
+                           value="{{ form.nombre if form else '' }}"
+                           maxlength="80" required />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="apellido">
+                    <i class="fas fa-user"></i> Apellido(s) <span class="req">*</span>
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-user"></i>
+                    <input type="text" id="apellido" name="apellido" class="form-control-med"
+                           placeholder="Ej: Pérez González"
+                           value="{{ form.apellido if form else '' }}"
+                           maxlength="80" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contacto -->
+            <div class="form-section-head">
+              <div class="form-section-num">3</div>
+              <h6 class="form-section-title">Información de Contacto</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="telefono">
+                    <i class="fas fa-phone"></i> Teléfono <span class="req">*</span>
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-phone"></i>
+                    <input type="tel" id="telefono" name="telefono" class="form-control-med"
+                           placeholder="300 123 4567"
+                           value="{{ form.telefono if form else '' }}"
+                           maxlength="15" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="correo">
+                    <i class="fas fa-envelope"></i> Correo Electrónico <span class="req">*</span>
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-envelope"></i>
+                    <input type="email" id="correo" name="correo" class="form-control-med"
+                           placeholder="ejemplo@correo.com"
+                           value="{{ form.correo if form else '' }}"
+                           maxlength="150" required />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EPS -->
+            <div class="form-section-head">
+              <div class="form-section-num">4</div>
+              <h6 class="form-section-title">EPS Asignada</h6>
+            </div>
+            <div class="form-group-med">
+              <label class="form-label-med" for="eps">
+                <i class="fas fa-hospital"></i> EPS <span class="req">*</span>
+              </label>
+              <div class="select-med-wrap input-icon-wrap">
+                <i class="input-icon fas fa-hospital"></i>
+                <select id="eps" name="eps" class="form-control-med" style="padding-left:2.6rem;" required>
+                  <option value="">-- Selecciona una EPS --</option>
+                  {% for val, label in [
+                    ('sura','EPS Sura'), ('sanitas','Sanitas'),
+                    ('nueva-eps','Nueva EPS'), ('compensar','Compensar'),
+                    ('coosalud','Coosalud'), ('coomeva','Coomeva'),
+                    ('salud-total','Salud Total'), ('medimas','Medimás'),
+                    ('famisanar','Famisanar')
+                  ] %}
+                  <option value="{{ val }}"
+                    {{ 'selected' if form and form.eps == val else '' }}>
+                    {{ label }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+          </form><!-- /form -->
+        </div><!-- /card-body -->
+
+        <div class="med-card-footer">
+          <a href="{{ url_for('index') }}" class="btn-med btn-med-outline btn-sm-med">
+            <i class="fas fa-arrow-left"></i> Cancelar
+          </a>
+          <button type="reset" form="formRegistro" class="btn-med btn-med-secondary btn-sm-med">
+            <i class="fas fa-eraser"></i> Limpiar
+          </button>
+          <!-- El botón submit apunta al form arriba -->
+          <button type="submit"
+                  form="formRegistro"
+                  onclick="document.querySelector('form[action]').submit()"
+                  class="btn-med btn-med-primary">
+            <i class="fas fa-save"></i> Registrar Paciente
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-start gap-2 mt-3 px-1">
+        <i class="fas fa-shield-halved" style="color:var(--sapphire);margin-top:2px;font-size:.85rem;"></i>
+        <p style="font-size:.78rem;color:var(--gray-500);margin:0;">La información se almacena cifrada en cumplimiento con la Ley 1581 de 2012 (Habeas Data).</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Asignar id al form para que el botón submit funcione */
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[method="POST"]');
+  if (form) form.id = 'formRegistro';
+});
+</script>
+{% endblock %}

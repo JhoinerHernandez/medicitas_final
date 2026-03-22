@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Panel Admin{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px);">
+  <aside class="dash-sidebar d-none d-lg-block">
+    <div class="dash-sidebar-section">
+      <div class="dash-sidebar-label">Principal</div>
+      <a href="{{ url_for('dashboard.panel') }}" class="dash-nav-item {{ 'active' if seccion=='panel' }}"><i class="fas fa-chart-pie"></i> Panel General</a>
+      <a href="{{ url_for('pacientes.registrar') }}" class="dash-nav-item"><i class="fas fa-user-plus"></i> Registrar Paciente</a>
+      <a href="{{ url_for('citas.reservar') }}" class="dash-nav-item"><i class="fas fa-calendar-plus"></i> Reservar Cita</a>
+      <a href="{{ url_for('citas.consultar') }}" class="dash-nav-item"><i class="fas fa-magnifying-glass"></i> Consultar Cita</a>
+      <a href="{{ url_for('citas.actualizar') }}" class="dash-nav-item"><i class="fas fa-pen-to-square"></i> Actualizar Cita</a>
+    </div>
+    <div class="dash-sidebar-section">
+      <div class="dash-sidebar-label">Reportes</div>
+      <a href="{{ url_for('dashboard.citas') }}" class="dash-nav-item {{ 'active' if seccion=='citas' }}"><i class="fas fa-calendar-alt"></i> Todas las Citas</a>
+      <a href="{{ url_for('dashboard.pacientes') }}" class="dash-nav-item {{ 'active' if seccion=='pacientes' }}"><i class="fas fa-users"></i> Pacientes</a>
+      <a href="{{ url_for('dashboard.usuarios') }}" class="dash-nav-item {{ 'active' if seccion=='usuarios' }}"><i class="fas fa-users-cog"></i> Usuarios</a>
+    </div>
+    <div class="dash-sidebar-section">
+      <a href="{{ url_for('auth.logout') }}" class="dash-nav-item" style="color:var(--danger);"><i class="fas fa-right-from-bracket"></i> Cerrar Sesión</a>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div>
+        <div class="dash-greeting">Panel de <span>Administración</span></div>
+        <div class="dash-date"><i class="fas fa-calendar me-1"></i><span id="currentDate"></span> &nbsp;·&nbsp; <i class="fas fa-user-shield me-1 text-sapphire"></i><span style="color:var(--sapphire);font-weight:600;">{{ current_user.nombre }}</span></div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('pacientes.registrar') }}" class="btn-med btn-med-secondary btn-sm-med"><i class="fas fa-user-plus"></i> Nuevo Paciente</a>
+        <a href="{{ url_for('citas.reservar') }}" class="btn-med btn-med-primary btn-sm-med"><i class="fas fa-calendar-plus"></i> Nueva Cita</a>
+      </div>
+    </div>
+
+    {% if seccion == 'panel' %}
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-xl-3"><div class="stat-card fade-up"><div class="stat-card-icon bg-sapphire-lt text-sapphire"><i class="fas fa-users"></i></div><div><div class="stat-card-val">{{ stats.total_pacientes }}</div><div class="stat-card-label">Pacientes</div></div></div></div>
+      <div class="col-6 col-xl-3"><div class="stat-card fade-up d1"><div class="stat-card-icon bg-teal-lt text-teal"><i class="fas fa-calendar-check"></i></div><div><div class="stat-card-val">{{ stats.citas_hoy }}</div><div class="stat-card-label">Citas Hoy</div></div></div></div>
+      <div class="col-6 col-xl-3"><div class="stat-card fade-up d2"><div class="stat-card-icon bg-amber-lt text-amber"><i class="fas fa-clock"></i></div><div><div class="stat-card-val">{{ stats.pendientes }}</div><div class="stat-card-label">Pendientes</div></div></div></div>
+      <div class="col-6 col-xl-3"><div class="stat-card fade-up d3"><div class="stat-card-icon bg-rose-lt text-rose"><i class="fas fa-users-cog"></i></div><div><div class="stat-card-val">{{ stats.total_usuarios }}</div><div class="stat-card-label">Usuarios</div></div></div></div>
+    </div>
+    <div class="row g-3 mb-4">
+      {% for icon,bg,cl,label,desc,url in [('fa-user-plus','bg-sapphire-lt','text-sapphire','Registrar Paciente','Nuevo paciente',url_for('pacientes.registrar')),('fa-calendar-plus','bg-teal-lt','text-teal','Reservar Cita','Agendar cita',url_for('citas.reservar')),('fa-magnifying-glass','bg-amber-lt','text-amber','Consultar Cita','Ver detalle',url_for('citas.consultar')),('fa-pen-to-square','bg-rose-lt','text-rose','Actualizar Cita','Modificar datos',url_for('citas.actualizar'))] %}
+      <div class="col-6 col-lg-3"><a href="{{ url }}" class="nav-card"><div class="nav-card-icon {{ bg }} {{ cl }}"><i class="fas {{ icon }}"></i></div><div class="nav-card-title">{{ label }}</div><div class="nav-card-desc">{{ desc }}</div></a></div>
+      {% endfor %}
+    </div>
+    <div class="med-card fade-up mb-3">
+      <div class="med-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2"><div class="med-card-header-icon bg-teal-lt text-teal"><i class="fas fa-calendar-day"></i></div><div><h3 class="med-card-title">Citas de Hoy</h3><p class="med-card-subtitle">Agenda del día</p></div></div>
+        <span class="badge-med badge-teal">{{ citas_hoy|length }} total</span>
+      </div>
+      {% if citas_hoy %}
+      <div style="overflow-x:auto;"><table class="table-med"><thead><tr><th>#</th><th>Paciente</th><th>Médico</th><th>Tipo</th><th>Hora</th><th>Estado</th><th>Acc.</th></tr></thead><tbody>
+      {% for c in citas_hoy %}
+      <tr>
+        <td style="color:var(--gray-400);">{{ c.id }}</td>
+        <td><div style="font-weight:700;">{{ c.paciente }}</div><div style="font-size:.72rem;color:var(--gray-400);">CC: {{ c.cedula }}</div></td>
+        <td>{{ c.medico }}</td>
+        <td><span class="badge-med badge-blue">{{ c.tipo_cita }}</span></td>
+        <td><strong>{{ c.hora | hora_fmt }}</strong></td>
+        <td><span class="badge-med {{ 'badge-success' if c.estado=='Confirmada' else 'badge-amber' if c.estado=='Pendiente' else 'badge-danger' }}"><span class="status-dot {{ 'dot-green' if c.estado=='Confirmada' else 'dot-amber' if c.estado=='Pendiente' else 'dot-red' }}"></span>{{ c.estado }}</span></td>
+        <td><a href="{{ url_for('citas.actualizar') }}?cedula={{ c.cedula }}" class="btn-med btn-xs-med" style="background:var(--amber-lt);color:var(--amber);"><i class="fas fa-pen"></i></a></td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}
+      <div class="text-center py-4" style="color:var(--gray-400);"><i class="fas fa-calendar-xmark" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.4;"></i>Sin citas hoy.</div>
+      {% endif %}
+      <div class="med-card-footer"><a href="{{ url_for('dashboard.citas') }}" class="btn-med btn-med-secondary btn-sm-med">Ver todas <i class="fas fa-arrow-right ms-1"></i></a></div>
+    </div>
+    <div class="med-card fade-up">
+      <div class="med-card-header"><div class="med-card-header-icon bg-sapphire-lt text-sapphire"><i class="fas fa-users"></i></div><div><h3 class="med-card-title">Últimos Pacientes</h3><p class="med-card-subtitle">Registrados recientemente</p></div></div>
+      <div style="overflow-x:auto;"><table class="table-med"><thead><tr><th>Cédula</th><th>Nombre</th><th>EPS</th><th>Correo</th><th>Fecha</th></tr></thead><tbody>
+      {% for p in ultimos_pacientes %}
+      <tr><td style="font-family:monospace;font-size:.82rem;">{{ p.cedula }}</td><td style="font-weight:700;">{{ p.nombre }} {{ p.apellido }}</td><td><span class="badge-med badge-blue">{{ p.eps|upper }}</span></td><td style="font-size:.8rem;color:var(--gray-500);">{{ p.correo }}</td><td style="font-size:.8rem;color:var(--gray-500);">{{ p.fecha_registro.strftime('%d/%m/%Y') if p.fecha_registro else '—' }}</td></tr>
+      {% else %}<tr><td colspan="5" class="text-center py-3" style="color:var(--gray-400);">Sin pacientes.</td></tr>{% endfor %}
+      </tbody></table></div>
+      <div class="med-card-footer"><a href="{{ url_for('pacientes.registrar') }}" class="btn-med btn-med-secondary btn-sm-med"><i class="fas fa-user-plus"></i> Registrar Paciente</a></div>
+    </div>
+
+    {% elif seccion == 'usuarios' %}
+    <div class="med-card">
+      <div class="med-card-header d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="med-card-header-icon bg-sapphire-lt text-sapphire"><i class="fas fa-users-cog"></i></div><div><h3 class="med-card-title">Usuarios del Sistema</h3><p class="med-card-subtitle">Acceso y roles</p></div></div><span class="badge-med badge-blue">{{ usuarios|length }}</span></div>
+      <div style="overflow-x:auto;"><table class="table-med"><thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Cédula</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+      {% for u in usuarios %}
+      <tr class="{{ 'table-secondary' if not u.activo }}">
+        <td>{{ u.id }}</td>
+        <td style="font-weight:700;">{{ u.nombre }}</td>
+        <td style="font-size:.82rem;color:var(--gray-500);">{{ u.correo }}</td>
+        <td><span class="badge-med {{ 'badge-blue' if u.rol=='admin' else 'badge-teal' }}"><i class="fas {{ 'fa-shield-halved' if u.rol=='admin' else 'fa-user' }} me-1"></i>{{ u.rol|capitalize }}</span></td>
+        <td style="font-family:monospace;font-size:.82rem;">{{ u.paciente_cedula or '—' }}</td>
+        <td><span class="badge-med {{ 'badge-success' if u.activo else 'badge-danger' }}">{{ 'Activo' if u.activo else 'Inactivo' }}</span></td>
+        <td>
+          {% if u.activo and u.id != current_user.id %}
+          <form method="POST" action="{{ url_for('dashboard.desactivar_usuario', uid=u.id) }}" onsubmit="return confirm('¿Desactivar?')">
+            <button type="submit" class="btn-med btn-xs-med" style="background:var(--danger-lt);color:var(--danger);"><i class="fas fa-user-slash"></i> Desactivar</button>
+          </form>
+          {% else %}<span style="color:var(--gray-300);font-size:.75rem;">—</span>{% endif %}
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="7" class="text-center py-4" style="color:var(--gray-400);">Sin usuarios.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+
+    {% elif seccion == 'citas' %}
+    <div class="med-card">
+      <div class="med-card-header d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="med-card-header-icon bg-teal-lt text-teal"><i class="fas fa-calendar-alt"></i></div><div><h3 class="med-card-title">Todas las Citas</h3><p class="med-card-subtitle">Últimas 100</p></div></div><span class="badge-med badge-teal">{{ citas|length }}</span></div>
+      <div style="overflow-x:auto;"><table class="table-med"><thead><tr><th>#</th><th>Paciente</th><th>Médico</th><th>Tipo</th><th>Fecha</th><th>Hora</th><th>EPS</th><th>Estado</th></tr></thead><tbody>
+      {% for c in citas %}
+      <tr><td>{{ c.id }}</td><td><div style="font-weight:700;">{{ c.paciente }}</div><div style="font-size:.72rem;color:var(--gray-400);">{{ c.cedula_paciente }}</div></td><td>{{ c.medico }}</td><td><span class="badge-med badge-blue">{{ c.tipo_cita }}</span></td><td style="font-size:.85rem;">{{ c.fecha }}</td><td><strong>{{ c.hora|hora_fmt }}</strong></td><td style="font-size:.8rem;">{{ c.eps|upper }}</td><td><span class="badge-med {{ 'badge-success' if c.estado=='Confirmada' else 'badge-amber' if c.estado=='Pendiente' else 'badge-danger' }}">{{ c.estado }}</span></td></tr>
+      {% else %}<tr><td colspan="8" class="text-center py-4" style="color:var(--gray-400);">Sin registros.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+
+    {% elif seccion == 'pacientes' %}
+    <div class="med-card">
+      <div class="med-card-header d-flex align-items-center justify-content-between"><div class="d-flex align-items-center gap-2"><div class="med-card-header-icon bg-sapphire-lt text-sapphire"><i class="fas fa-users"></i></div><div><h3 class="med-card-title">Todos los Pacientes</h3><p class="med-card-subtitle">Activos</p></div></div><span class="badge-med badge-blue">{{ pacientes|length }}</span></div>
+      <div style="overflow-x:auto;"><table class="table-med"><thead><tr><th>Cédula</th><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>EPS</th><th>Registrado</th></tr></thead><tbody>
+      {% for p in pacientes %}
+      <tr><td style="font-family:monospace;font-size:.82rem;">{{ p.cedula }}</td><td style="font-weight:700;">{{ p.nombre }} {{ p.apellido }}</td><td>{{ p.telefono or '—' }}</td><td style="font-size:.8rem;color:var(--gray-500);">{{ p.correo }}</td><td><span class="badge-med badge-blue">{{ p.eps|upper }}</span></td><td style="font-size:.8rem;color:var(--gray-500);">{{ p.fecha_registro.strftime('%d/%m/%Y') if p.fecha_registro else '—' }}</td></tr>
+      {% else %}<tr><td colspan="6" class="text-center py-4" style="color:var(--gray-400);">Sin registros.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>document.getElementById('currentDate').textContent=new Date().toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});</script>
+{% endblock %}

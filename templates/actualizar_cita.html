@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}Actualizar Cita{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:linear-gradient(135deg,#881337,var(--rose),#be185d);">
+  <div class="container">
+    <nav class="med-breadcrumb">
+      <a href="{{ url_for('index') }}">Inicio</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span>Actualizar Cita</span>
+    </nav>
+    <div class="page-header-icon"><i class="fas fa-pen-to-square"></i></div>
+    <h1 class="page-header-title">Actualizar Cita Médica</h1>
+    <p class="page-header-sub">Busca la cita por documento y modifica los campos necesarios.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+      <div class="med-card fade-up">
+        <div class="med-card-header">
+          <div class="med-card-header-icon bg-rose-lt text-rose">
+            <i class="fas fa-magnifying-glass"></i>
+          </div>
+          <div>
+            <h2 class="med-card-title">Paso 1 — Buscar Paciente</h2>
+            <p class="med-card-subtitle">Ingresa el documento para cargar los datos de la cita</p>
+          </div>
+        </div>
+
+        <div class="med-card-body">
+
+          <!-- ── Formulario búsqueda ────────────────────────── -->
+          <form method="POST" action="{{ url_for('citas.actualizar') }}" id="formBuscar">
+            <input type="hidden" name="accion" value="buscar" />
+            <div class="d-flex gap-2">
+              <div class="input-icon-wrap flex-grow-1">
+                <i class="input-icon fas fa-hashtag"></i>
+                <input type="text" id="docActualizar" name="docActualizar"
+                       class="form-control-med"
+                       placeholder="Número de identificación del paciente"
+                       value="{{ cedula }}"
+                       inputmode="numeric" maxlength="12" required />
+              </div>
+              <button type="submit"
+                      class="btn-med btn-med-primary"
+                      style="background:var(--rose);
+                             box-shadow:0 2px 8px rgba(190,24,93,.3);
+                             white-space:nowrap;"
+                      onmouseover="this.style.background='#881337'"
+                      onmouseout="this.style.background='var(--rose)'">
+                <i class="fas fa-search"></i>
+                <span class="d-none d-sm-inline ms-1">Buscar Cita</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- ── Formulario actualización (solo si hay cita) ── -->
+          {% if cita %}
+          <div id="updateFields" class="mt-4">
+
+            <!-- Confirmación de encontrado -->
+            <div style="background:var(--success-lt);border:1px solid rgba(5,150,105,.2);
+                        border-radius:var(--radius-md);padding:.85rem 1.1rem;
+                        margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;">
+              <i class="fas fa-check-circle" style="color:var(--success);"></i>
+              <span style="font-size:.875rem;font-weight:600;color:#065f46;">
+                Cita encontrada para
+                <strong>{{ cita.nombre }} {{ cita.apellido }}</strong>
+                (CC: {{ cita.cedula_paciente }}).
+                Modifica los campos que necesitas.
+              </span>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('citas.actualizar') }}"
+                  id="formActualizar"
+                  novalidate>
+              <input type="hidden" name="accion"   value="actualizar" />
+              <input type="hidden" name="id_cita"  value="{{ cita.id }}" />
+
+              <!-- Médico y tipo -->
+              <div class="form-section-head">
+                <div class="form-section-num" style="background:var(--rose);">2</div>
+                <h6 class="form-section-title">Médico y Tipo de Cita</h6>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group-med">
+                    <label class="form-label-med" for="nuevoMedico">
+                      <i class="fas fa-stethoscope"></i> Médico <span class="req">*</span>
+                    </label>
+                    <div class="select-med-wrap input-icon-wrap">
+                      <i class="input-icon fas fa-stethoscope"></i>
+                      <select id="nuevoMedico" name="nuevoMedico"
+                              class="form-control-med"
+                              style="padding-left:2.6rem;" required>
+                        <option value="">-- Selecciona médico --</option>
+                        {% set esp_act = namespace(val='') %}
+                        {% for med in medicos %}
+                          {% if med.especialidad != esp_act.val %}
+                            {% if esp_act.val %}</optgroup>{% endif %}
+                            <optgroup label="{{ med.especialidad }}">
+                            {% set esp_act.val = med.especialidad %}
+                          {% endif %}
+                          <option value="{{ med.id }}"
+                            {{ 'selected' if med.id == cita.id_medico }}>
+                            {{ med.nombre }}
+                          </option>
+                        {% endfor %}
+                        {% if medicos %}</optgroup>{% endif %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group-med">
+                    <label class="form-label-med" for="nuevoTipo">
+                      <i class="fas fa-notes-medical"></i> Tipo de Cita <span class="req">*</span>
+                    </label>
+                    <div class="select-med-wrap input-icon-wrap">
+                      <i class="input-icon fas fa-notes-medical"></i>
+                      <select id="nuevoTipo" name="nuevoTipo"
+                              class="form-control-med"
+                              style="padding-left:2.6rem;" required>
+                        <option value="">-- Tipo --</option>
+                        {% for tipo in ['General','Odontología','Especialista','Control','Urgencias'] %}
+                        <option value="{{ tipo }}"
+                          {{ 'selected' if cita.tipo_cita == tipo }}>
+                          {{ tipo }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nueva fecha y hora -->
+              <div class="form-section-head">
+                <div class="form-section-num" style="background:var(--rose);">3</div>
+                <h6 class="form-section-title">Nueva Fecha y Hora</h6>
+              </div>
+              <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                  <div class="form-group-med">
+                    <label class="form-label-med" for="nuevaFecha">
+                      <i class="fas fa-calendar"></i> Fecha <span class="req">*</span>
+                    </label>
+                    <div class="input-icon-wrap">
+                      <i class="input-icon fas fa-calendar"></i>
+                      <input type="date" id="nuevaFecha" name="nuevaFecha"
+                             class="form-control-med"
+                             style="padding-left:2.6rem;"
+                             value="{{ cita.fecha }}"
+                             required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group-med">
+                    <label class="form-label-med" for="nuevaHora">
+                      <i class="fas fa-clock"></i> Hora <span class="req">*</span>
+                    </label>
+                    <div class="select-med-wrap input-icon-wrap">
+                      <i class="input-icon fas fa-clock"></i>
+                      <select id="nuevaHora" name="nuevaHora"
+                              class="form-control-med"
+                              style="padding-left:2.6rem;" required>
+                        <option value="">-- Hora --</option>
+                        {% set hora_actual = cita.hora | hora_fmt %}
+                        {% for h in ['07:00','07:30','08:00','08:30','09:00','09:30',
+                                     '10:00','10:30','11:00','11:30',
+                                     '14:00','14:30','15:00','15:30','16:00','17:00'] %}
+                        <option value="{{ h }}"
+                          {{ 'selected' if cita.hora | string | truncate(5,False,'') == h }}>
+                          {{ h }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </form><!-- /formActualizar -->
+          </div><!-- /updateFields -->
+          {% endif %}
+
+        </div><!-- /card-body -->
+
+        <div class="med-card-footer">
+          <a href="{{ url_for('citas.consultar') }}"
+             class="btn-med btn-med-outline btn-sm-med">
+            <i class="fas fa-arrow-left"></i> Volver
+          </a>
+          {% if cita %}
+          <button type="submit"
+                  form="formActualizar"
+                  class="btn-med btn-med-primary"
+                  style="background:var(--rose);
+                         box-shadow:0 2px 8px rgba(190,24,93,.3);"
+                  onmouseover="this.style.background='#881337'"
+                  onmouseout="this.style.background='var(--rose)'">
+            <i class="fas fa-floppy-disk"></i> Guardar Cambios
+          </button>
+          {% endif %}
+        </div>
+      </div><!-- /med-card -->
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  /* Fecha mínima = hoy */
+  const fechaInput = document.getElementById('nuevaFecha');
+  if (fechaInput) {
+    fechaInput.min = new Date().toISOString().split('T')[0];
+  }
+</script>
+{% endblock %}

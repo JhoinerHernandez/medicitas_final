@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% block title %}Reservar Cita{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:linear-gradient(135deg,#065f46,var(--teal),#0d9488);">
+  <div class="container">
+    <nav class="med-breadcrumb">
+      <a href="{{ url_for('index') }}">Inicio</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span>Reservar Cita</span>
+    </nav>
+    <div class="page-header-icon"><i class="fas fa-calendar-plus"></i></div>
+    <h1 class="page-header-title">Reservar Cita Médica</h1>
+    <p class="page-header-sub">Agenda tu cita con el médico y horario disponibles.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+
+      <div class="med-card fade-up d1">
+        <div class="med-card-header">
+          <div class="med-card-header-icon bg-teal-lt text-teal"><i class="fas fa-calendar-check"></i></div>
+          <div>
+            <h2 class="med-card-title">Datos de la Cita</h2>
+            <p class="med-card-subtitle">Completa la información para agendar tu cita médica</p>
+          </div>
+        </div>
+
+        <div class="med-card-body">
+          <form method="POST" action="{{ url_for('citas.reservar') }}" id="formReserva" novalidate>
+
+            <!-- Sección 1: Paciente -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">1</div>
+              <h6 class="form-section-title">Identificación del Paciente</h6>
+            </div>
+            <div class="form-group-med">
+              <label class="form-label-med" for="docPaciente">
+                <i class="fas fa-id-card"></i> Documento del Paciente <span class="req">*</span>
+              </label>
+              <div class="d-flex gap-2">
+                <div class="input-icon-wrap flex-grow-1">
+                  <i class="input-icon fas fa-hashtag"></i>
+                  <input type="text" id="docPaciente" name="docPaciente" class="form-control-med"
+                         placeholder="Número de identificación"
+                         value="{{ form.docPaciente if form else '' }}"
+                         inputmode="numeric" maxlength="12" required />
+                </div>
+                <!-- Botón AJAX para verificar paciente -->
+                <button type="button" id="btnVerificarPaciente"
+                        class="btn-med btn-med-secondary btn-sm-med"
+                        style="white-space:nowrap;padding:.75rem 1rem;">
+                  <i class="fas fa-search"></i> Verificar
+                </button>
+              </div>
+              <div id="infoPaciente" class="form-help-med mt-2" style="display:none;"></div>
+            </div>
+
+            <!-- Sección 2: Médico y tipo -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">2</div>
+              <h6 class="form-section-title">Médico y Tipo de Cita</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="medico">
+                    <i class="fas fa-stethoscope"></i> Médico Asignado <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap input-icon-wrap">
+                    <i class="input-icon fas fa-stethoscope"></i>
+                    <select id="medico" name="medico" class="form-control-med" style="padding-left:2.6rem;" required>
+                      <option value="">-- Selecciona un médico --</option>
+                      {% set esp_actual = namespace(val='') %}
+                      {% for med in medicos %}
+                        {% if med.especialidad != esp_actual.val %}
+                          {% if esp_actual.val %}</optgroup>{% endif %}
+                          <optgroup label="{{ med.especialidad }}">
+                          {% set esp_actual.val = med.especialidad %}
+                        {% endif %}
+                        <option value="{{ med.id }}"
+                          {{ 'selected' if form and form.medico == med.id|string }}>
+                          {{ med.nombre }}
+                        </option>
+                      {% endfor %}
+                      {% if medicos %}</optgroup>{% endif %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="tipoCita">
+                    <i class="fas fa-notes-medical"></i> Tipo de Cita <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap input-icon-wrap">
+                    <i class="input-icon fas fa-notes-medical"></i>
+                    <select id="tipoCita" name="tipoCita" class="form-control-med" style="padding-left:2.6rem;" required>
+                      <option value="">-- Tipo de consulta --</option>
+                      {% for tipo in ['General','Odontología','Especialista','Control','Urgencias'] %}
+                      <option value="{{ tipo }}"
+                        {{ 'selected' if form and form.tipoCita == tipo }}>
+                        {{ tipo }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección 3: Fecha y hora -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">3</div>
+              <h6 class="form-section-title">Fecha y Hora</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="fechaCita">
+                    <i class="fas fa-calendar"></i> Fecha <span class="req">*</span>
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-calendar"></i>
+                    <input type="date" id="fechaCita" name="fechaCita" class="form-control-med"
+                           style="padding-left:2.6rem;"
+                           value="{{ form.fechaCita if form else '' }}"
+                           required />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="horaCita">
+                    <i class="fas fa-clock"></i> Hora <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap input-icon-wrap">
+                    <i class="input-icon fas fa-clock"></i>
+                    <select id="horaCita" name="horaCita" class="form-control-med" style="padding-left:2.6rem;" required>
+                      <option value="">-- Hora disponible --</option>
+                      {% for hora in ['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'] %}
+                      <option value="{{ hora }}"
+                        {{ 'selected' if form and form.horaCita == hora }}>
+                        {{ hora }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección 4: EPS -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">4</div>
+              <h6 class="form-section-title">EPS y Dirección</h6>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-5">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="epsReserva">
+                    <i class="fas fa-hospital"></i> EPS <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap input-icon-wrap">
+                    <i class="input-icon fas fa-hospital"></i>
+                    <select id="epsReserva" name="epsReserva" class="form-control-med" style="padding-left:2.6rem;" required>
+                      <option value="">-- Selecciona la EPS --</option>
+                      {% for val, label in [
+                        ('sura','EPS Sura'), ('sanitas','Sanitas'),
+                        ('nueva-eps','Nueva EPS'), ('compensar','Compensar'),
+                        ('coosalud','Coosalud'), ('coomeva','Coomeva')
+                      ] %}
+                      <option value="{{ val }}"
+                        {{ 'selected' if form and form.epsReserva == val }}>
+                        {{ label }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-help-med">La dirección se cargará automáticamente.</div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="direccionEps">
+                    <i class="fas fa-map-marker-alt"></i> Dirección de Atención
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon fas fa-map-marker-alt"></i>
+                    <input type="text" id="direccionEps" name="direccionEps" class="form-control-med"
+                           placeholder="Se autocompleta al seleccionar la EPS"
+                           value="{{ form.direccionEps if form else '' }}"
+                           readonly style="background:var(--gray-50);" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="med-card-footer">
+          <a href="{{ url_for('index') }}" class="btn-med btn-med-outline btn-sm-med">
+            <i class="fas fa-arrow-left"></i> Cancelar
+          </a>
+          <button type="submit" form="formReserva" class="btn-med btn-med-teal">
+            <i class="fas fa-calendar-check"></i> Confirmar Reserva
+          </button>
+        </div>
+      </div>
+
+      <div class="alert-med alert-med-warning mt-3">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>Preséntate 15 minutos antes con tu documento y carné de la EPS. Las citas pueden cancelarse hasta 24 horas antes.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const EPS_DIRS = {{ config.EPS_DIRECCIONES | tojson }};
+
+/* Autocompletar dirección EPS */
+document.getElementById('epsReserva')?.addEventListener('change', function () {
+  document.getElementById('direccionEps').value = EPS_DIRS[this.value] || '';
+});
+
+/* Verificar paciente vía AJAX */
+document.getElementById('btnVerificarPaciente')?.addEventListener('click', async function () {
+  const cedula = document.getElementById('docPaciente').value.trim();
+  const info   = document.getElementById('infoPaciente');
+  if (!cedula) return;
+  try {
+    const res  = await fetch(`/pacientes/${cedula}`);
+    const data = await res.json();
+    if (data.ok) {
+      const p = data.paciente;
+      info.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>
+        Paciente encontrado: <strong>${p.nombre} ${p.apellido}</strong> · EPS: ${p.eps}`;
+      info.style.color = 'var(--success)';
+    } else {
+      info.innerHTML = `<i class="fas fa-times-circle text-danger me-1"></i>
+        Paciente no encontrado. <a href="/pacientes/registrar">Registrarlo aquí.</a>`;
+      info.style.color = 'var(--danger)';
+    }
+  } catch {
+    info.innerHTML = 'Error al verificar.';
+    info.style.color = 'var(--danger)';
+  }
+  info.style.display = 'block';
+});
+
+/* Fecha mínima = hoy */
+document.getElementById('fechaCita').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

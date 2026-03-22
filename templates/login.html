@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+
+  <!-- Card de login -->
+  <div class="auth-card">
+    <div class="auth-logo-mark">
+      <i class="fas fa-stethoscope" style="color:#fff;font-size:1.3rem;"></i>
+    </div>
+
+    <h2 class="auth-title">Bienvenido/a</h2>
+    <p class="auth-sub">Ingresa tus credenciales para acceder al sistema.</p>
+
+    <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+
+      <!-- Correo -->
+      <div class="form-group-med mb-3">
+        <label class="form-label-med" for="correo">
+          <i class="fas fa-envelope"></i> Correo electrónico
+        </label>
+        <div class="lum-input-icon">
+          <input type="email" id="correo" name="correo" class="form-control-med"
+                 placeholder="tu@correo.com" required autocomplete="email"
+                 style="padding-left:2.6rem;" />
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group-med mb-4">
+        <label class="form-label-med" for="password">
+          <i class="fas fa-lock"></i> Contraseña
+        </label>
+        <div style="position:relative;">
+          <input type="password" id="password" name="password"
+                 class="form-control-med"
+                 placeholder="••••••••" required
+                 style="padding-right:3rem;" />
+          <button type="button"
+                  onclick="togglePasswordVisibility('password', this)"
+                  style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);
+                         background:none;border:none;color:var(--gray-400);cursor:pointer;">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-med btn-med-primary w-100 justify-content-center"
+              style="padding:.85rem;">
+        <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+      </button>
+    </form>
+
+    <hr style="border-color:var(--gray-200);margin:1.5rem 0;" />
+
+
+    <p style="text-align:center;margin-top:1.5rem;font-size:.875rem;color:var(--gray-500);">
+      ¿No tienes cuenta?
+      <a href="{{ url_for('auth.register') }}" style="color:var(--sapphire);font-weight:700;">
+        Regístrate aquí
+      </a>
+    </p>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon  = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type   = 'text';
+    icon.className = 'fas fa-eye-slash';
+  } else {
+    input.type   = 'password';
+    icon.className = 'fas fa-eye';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Error {{ codigo }}{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <div style="font-size:5rem;margin-bottom:1rem;">
+    {% if codigo == 404 %}🔍{% else %}⚠️{% endif %}
+  </div>
+  <h1 style="font-family:var(--font-display);font-size:4rem;color:var(--sapphire);">
+    {{ codigo }}
+  </h1>
+  <h3 style="color:var(--gray-700);margin-bottom:1rem;">{{ mensaje }}</h3>
+  <p style="color:var(--gray-500);max-width:400px;margin:0 auto 2rem;">
+    {% if codigo == 404 %}
+      La página que buscas no existe o fue movida.
+    {% else %}
+      Ocurrió un error interno. Por favor intenta de nuevo.
+    {% endif %}
+  </p>
+  <a href="{{ url_for('index') }}" class="btn-med btn-med-primary btn-lg-med">
+    <i class="fas fa-home me-2"></i>Volver al Inicio
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>{% block title %}MediCitas{% endblock %} — Sistema Médico</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="med-navbar" id="mainNav">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="{{ url_for('index') }}" class="nav-brand">
+        <div class="nav-brand-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="nav-brand-text">
+          <span class="nav-brand-name">MediCitas</span>
+          <span class="nav-brand-sub">
+            {% if current_user.is_admin %}Panel Admin
+            {% elif current_user.is_auth %}Portal Paciente
+            {% else %}Sistema Médico{% endif %}
+          </span>
+        </div>
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        {% if current_user.is_admin %}
+          <li><a href="{{ url_for('dashboard.panel') }}" class="{{ 'active' if request.endpoint=='dashboard.panel' }}"><i class="fas fa-chart-pie"></i> Panel</a></li>
+          <li><a href="{{ url_for('pacientes.registrar') }}" class="{{ 'active' if request.blueprint=='pacientes' }}"><i class="fas fa-user-plus"></i> Registrar Paciente</a></li>
+          <li><a href="{{ url_for('citas.reservar') }}" class="{{ 'active' if request.endpoint=='citas.reservar' }}"><i class="fas fa-calendar-plus"></i> Reservar Cita</a></li>
+          <li><a href="{{ url_for('citas.consultar') }}" class="{{ 'active' if request.endpoint=='citas.consultar' }}"><i class="fas fa-search"></i> Consultar</a></li>
+          <li><a href="{{ url_for('dashboard.usuarios') }}" class="{{ 'active' if request.endpoint=='dashboard.usuarios' }}"><i class="fas fa-users-cog"></i> Usuarios</a></li>
+        {% elif current_user.is_auth %}
+          <li><a href="{{ url_for('paciente_bp.panel') }}" class="{{ 'active' if request.endpoint=='paciente_bp.panel' }}"><i class="fas fa-home"></i> Mis Citas</a></li>
+          <li><a href="{{ url_for('paciente_bp.nueva_cita') }}" class="{{ 'active' if request.endpoint=='paciente_bp.nueva_cita' }}"><i class="fas fa-calendar-plus"></i> Nueva Cita</a></li>
+        {% else %}
+          <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Inicio</a></li>
+          <li><a href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
+          <li><a href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus"></i> Registrarse</a></li>
+        {% endif %}
+      </ul>
+      <div class="nav-right">
+        {% if current_user.is_auth %}
+          <span class="nav-badge d-none d-md-inline-flex" style="{{ 'background:#1a4b8c;color:#fff;' if current_user.is_admin else 'background:#0d8a7e;color:#fff;' }}">
+            <i class="fas {{ 'fa-shield-halved' if current_user.is_admin else 'fa-user' }} me-1" style="font-size:.55rem;"></i>
+            {{ 'Admin' if current_user.is_admin else 'Paciente' }}
+          </span>
+          <span class="d-none d-md-inline" style="font-size:.82rem;color:var(--gray-600);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            {{ current_user.nombre }}
+          </span>
+          <a href="{{ url_for('auth.logout') }}" class="btn-med btn-med-secondary btn-sm-med" style="padding:.35rem .8rem;font-size:.75rem;">
+            <i class="fas fa-sign-out-alt"></i> Salir
+          </a>
+        {% else %}
+          <span class="nav-badge d-none d-md-inline-flex"><i class="fas fa-circle me-1" style="color:#4ade80;font-size:.55rem;"></i> Sistema Activo</span>
+        {% endif %}
+        <button class="navbar-toggler-med" id="navToggler"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for category, message in messages %}
+        <div class="alert-med alert-med-{{ 'success' if category=='success' else 'error' if category=='danger' else 'warning' if category=='warning' else 'info' }} d-flex align-items-start gap-2">
+          <i class="fas {{ 'fa-check-circle' if category=='success' else 'fa-times-circle' if category=='danger' else 'fa-triangle-exclamation' if category=='warning' else 'fa-info-circle' }}"></i>
+          <div>{{ message }}</div>
+          <button onclick="this.closest('.alert-med').remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;opacity:.6;"><i class="fas fa-times"></i></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer class="med-footer">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-top:1px solid rgba(255,255,255,.08);padding-top:1.5rem;">
+      <span class="footer-copy">© Copyright 2025 MediCitas. Todos los derechos reservados.</span>
+      <span class="footer-copy"><i class="fas fa-code me-1"></i> @jhoinerlukas -  Web Designer</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

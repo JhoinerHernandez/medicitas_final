@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Consultar Cita{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:linear-gradient(135deg,#78350f,var(--amber),#b45309);">
+  <div class="container">
+    <nav class="med-breadcrumb">
+      <a href="{{ url_for('index') }}">Inicio</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span>Consultar Cita</span>
+    </nav>
+    <div class="page-header-icon"><i class="fas fa-magnifying-glass-plus"></i></div>
+    <h1 class="page-header-title">Consultar Cita Médica</h1>
+    <p class="page-header-sub">Ingresa tu número de identificación para ver el detalle de tu cita.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+
+      <!-- Formulario de búsqueda -->
+      <div class="med-card fade-up">
+        <div class="med-card-header">
+          <div class="med-card-header-icon bg-amber-lt text-amber">
+            <i class="fas fa-search"></i>
+          </div>
+          <div>
+            <h2 class="med-card-title">Buscar Cita</h2>
+            <p class="med-card-subtitle">Ingresa el documento del paciente</p>
+          </div>
+        </div>
+
+        <div class="med-card-body">
+          <form method="POST" action="{{ url_for('citas.consultar') }}" id="formConsultar" novalidate>
+            <div class="form-group-med">
+              <label class="form-label-med" for="docConsulta">
+                <i class="fas fa-id-card"></i> Número de Identificación <span class="req">*</span>
+              </label>
+              <div class="d-flex gap-2">
+                <div class="input-icon-wrap flex-grow-1">
+                  <i class="input-icon fas fa-hashtag"></i>
+                  <input type="text" id="docConsulta" name="docConsulta"
+                         class="form-control-med"
+                         placeholder="Ej: 1234567890"
+                         value="{{ cedula }}"
+                         inputmode="numeric" maxlength="12" required autofocus />
+                </div>
+                <button type="submit" class="btn-med btn-med-primary"
+                        style="background:var(--amber);box-shadow:0 2px 8px rgba(217,119,6,.3);
+                               white-space:nowrap;padding:.75rem 1.25rem;"
+                        onmouseover="this.style.background='#b45309'"
+                        onmouseout="this.style.background='var(--amber)'">
+                  <i class="fas fa-search"></i>
+                  <span class="d-none d-sm-inline ms-1">Buscar</span>
+                </button>
+              </div>
+              <div class="form-help-med">
+                <i class="fas fa-circle-info me-1"></i>
+                Ingresa la cédula o documento con el que te registraste.
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ════ TARJETA DE RESULTADO ════ -->
+      {% if cita %}
+      <div class="result-card mt-4">
+
+        <!-- Banner superior con nombre -->
+        <div class="result-card-banner">
+          <div class="result-avatar"><i class="fas fa-user-injured"></i></div>
+          <div class="flex-grow-1">
+            <div class="result-name">{{ cita.nombre }} {{ cita.apellido }}</div>
+            <div class="result-id">CC: {{ cita.cedula_paciente }}</div>
+            <div class="mt-1">
+              <span class="badge-med {{ 'badge-success' if cita.estado == 'Confirmada'
+                                        else 'badge-amber' if cita.estado == 'Pendiente'
+                                        else 'badge-danger' }}">
+                <span class="status-dot {{ 'dot-green' if cita.estado == 'Confirmada'
+                                           else 'dot-amber' if cita.estado == 'Pendiente'
+                                           else 'dot-red' }}"></span>
+                {{ cita.estado }}
+              </span>
+            </div>
+          </div>
+          <!-- Acciones rápidas -->
+          <div class="d-flex flex-column gap-2 align-items-end">
+            <button onclick="window.print()"
+                    class="btn-med btn-sm-med"
+                    style="background:rgba(255,255,255,.15);color:#fff;
+                           border:1px solid rgba(255,255,255,.25);">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de campos -->
+        <div class="result-grid">
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-stethoscope"></i> Médico
+            </div>
+            <div class="result-field-val highlight">{{ cita.medico }}</div>
+            <div style="font-size:.75rem;color:var(--gray-400);margin-top:.15rem;">
+              {{ cita.especialidad }}
+            </div>
+          </div>
+
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-notes-medical"></i> Tipo de Cita
+            </div>
+            <div class="result-field-val">{{ cita.tipo_cita }}</div>
+          </div>
+
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-calendar"></i> Fecha
+            </div>
+            <div class="result-field-val">
+              {{ cita.fecha | fecha_es }}
+            </div>
+          </div>
+
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-clock"></i> Hora
+            </div>
+            <div class="result-field-val highlight">
+              {{ cita.hora | hora_fmt }}
+            </div>
+          </div>
+
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-hospital"></i> EPS
+            </div>
+            <div class="result-field-val">{{ cita.eps | upper }}</div>
+          </div>
+
+          <div class="result-field">
+            <div class="result-field-label">
+              <i class="fas fa-map-marker-alt"></i> Dirección
+            </div>
+            <div class="result-field-val">
+              {{ cita.direccion_eps if cita.direccion_eps else 'No registrada' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-flex gap-2 p-3 flex-wrap"
+             style="background:var(--gray-50);border-top:1px solid var(--gray-100);">
+          <a href="{{ url_for('citas.actualizar') }}?cedula={{ cita.cedula_paciente }}"
+             class="btn-med btn-med-primary btn-sm-med">
+            <i class="fas fa-pen-to-square"></i> Modificar Cita
+          </a>
+
+          {% if cita.estado not in ['Cancelada', 'Completada'] %}
+          <form method="POST"
+                action="{{ url_for('citas.cancelar', id_cita=cita.id) }}"
+                onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta cita?')">
+            <button type="submit"
+                    class="btn-med btn-sm-med"
+                    style="background:var(--danger-lt);color:var(--danger);">
+              <i class="fas fa-calendar-xmark"></i> Cancelar Cita
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div><!-- /result-card -->
+      {% endif %}
+
+      <!-- Mensaje cuando no hay cita (POST sin resultado) -->
+      {% if request.method == 'POST' and not cita %}
+      <div class="alert-med alert-med-warning mt-4">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          No se encontró ninguna cita activa para el documento
+          <strong>{{ cedula }}</strong>.
+          ¿Deseas <a href="{{ url_for('citas.reservar') }}">reservar una cita</a>?
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

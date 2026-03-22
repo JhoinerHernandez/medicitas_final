@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Cita{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:linear-gradient(135deg,#065f46,var(--teal),#0d9488);">
+  <div class="container">
+    <nav class="med-breadcrumb">
+      <a href="{{ url_for('paciente_bp.panel') }}">Mis Citas</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span>Nueva Cita</span>
+    </nav>
+    <div class="page-header-icon"><i class="fas fa-calendar-plus"></i></div>
+    <h1 class="page-header-title">Reservar Nueva Cita</h1>
+    <p class="page-header-sub">Selecciona médico, fecha y hora para tu cita.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="med-card fade-up">
+        <div class="med-card-header">
+          <div class="med-card-header-icon bg-teal-lt text-teal">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div>
+            <h2 class="med-card-title">Datos de la Cita</h2>
+            <p class="med-card-subtitle">Tu cédula se asignará automáticamente.</p>
+          </div>
+        </div>
+
+        <div class="med-card-body">
+          <form method="POST" action="{{ url_for('paciente_bp.nueva_cita') }}" id="formCita" novalidate>
+
+            <!-- Médico y tipo -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">1</div>
+              <h6 class="form-section-title">Médico y Tipo de Consulta</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="medico">
+                    <i class="fas fa-stethoscope"></i> Médico <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap">
+                    <select id="medico" name="medico" class="form-control-med" required>
+                      <option value="">-- Selecciona médico --</option>
+                      {% set esp_act = namespace(val='') %}
+                      {% for med in medicos %}
+                        {% if med.especialidad != esp_act.val %}
+                          {% if esp_act.val %}</optgroup>{% endif %}
+                          <optgroup label="{{ med.especialidad }}">
+                          {% set esp_act.val = med.especialidad %}
+                        {% endif %}
+                        <option value="{{ med.id }}">{{ med.nombre }}</option>
+                      {% endfor %}
+                      {% if medicos %}</optgroup>{% endif %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="tipoCita">
+                    <i class="fas fa-notes-medical"></i> Tipo de Cita <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap">
+                    <select id="tipoCita" name="tipoCita" class="form-control-med" required>
+                      <option value="">-- Tipo --</option>
+                      {% for tipo in ['General','Odontología','Especialista','Control','Urgencias'] %}
+                      <option value="{{ tipo }}">{{ tipo }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fecha y hora -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">2</div>
+              <h6 class="form-section-title">Fecha y Hora</h6>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="fechaCita">
+                    <i class="fas fa-calendar"></i> Fecha <span class="req">*</span>
+                  </label>
+                  <input type="date" id="fechaCita" name="fechaCita"
+                         class="form-control-med" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-med">
+                  <label class="form-label-med" for="horaCita">
+                    <i class="fas fa-clock"></i> Hora <span class="req">*</span>
+                  </label>
+                  <div class="select-med-wrap">
+                    <select id="horaCita" name="horaCita" class="form-control-med" required>
+                      <option value="">-- Hora --</option>
+                      {% for h in ['07:00','07:30','08:00','08:30','09:00','09:30',
+                                   '10:00','10:30','11:00','11:30','14:00','14:30',
+                                   '15:00','15:30','16:00','16:30','17:00'] %}
+                      <option value="{{ h }}">{{ h }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EPS -->
+            <div class="form-section-head">
+              <div class="form-section-num" style="background:var(--teal);">3</div>
+              <h6 class="form-section-title">EPS</h6>
+            </div>
+            <div class="form-group-med">
+              <label class="form-label-med" for="eps">
+                <i class="fas fa-hospital"></i> EPS <span class="req">*</span>
+              </label>
+              <div class="select-med-wrap">
+                <select id="eps" name="eps" class="form-control-med" required>
+                  <option value="">-- Tu EPS --</option>
+                  {% for val, label in [
+                    ('sura','EPS Sura'), ('sanitas','Sanitas'),
+                    ('nueva-eps','Nueva EPS'), ('compensar','Compensar'),
+                    ('coosalud','Coosalud'), ('coomeva','Coomeva'),
+                    ('salud-total','Salud Total'), ('medimas','Medimás'),
+                    ('famisanar','Famisanar')
+                  ] %}
+                  <option value="{{ val }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="med-card-footer">
+          <a href="{{ url_for('paciente_bp.panel') }}"
+             class="btn-med btn-med-outline btn-sm-med">
+            <i class="fas fa-arrow-left"></i> Volver
+          </a>
+          <button type="submit" form="formCita" class="btn-med btn-med-teal">
+            <i class="fas fa-calendar-check"></i> Confirmar Cita
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('fechaCita').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}
