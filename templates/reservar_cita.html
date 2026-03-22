@@ -171,7 +171,9 @@
                       {% for val, label in [
                         ('sura','EPS Sura'), ('sanitas','Sanitas'),
                         ('nueva-eps','Nueva EPS'), ('compensar','Compensar'),
-                        ('coosalud','Coosalud'), ('coomeva','Coomeva')
+                        ('coosalud','Coosalud'), ('coomeva','Coomeva'),
+                        ('salud-total','Salud Total'), ('medimas','Medimás'),
+                        ('famisanar','Famisanar')
                       ] %}
                       <option value="{{ val }}"
                         {{ 'selected' if form and form.epsReserva == val }}>
