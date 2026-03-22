@@ -81,7 +81,6 @@ def nueva_cita():
         hora    = request.form.get('horaCita', '').strip()
         eps_key = request.form.get('eps',      '').strip()
 
-        # ── Validaciones ──────────────────────────────────────────
         errores = []
         if not tipo:    errores.append('Selecciona el tipo de cita.')
         if not fecha:   errores.append('Selecciona la fecha.')
@@ -99,7 +98,7 @@ def nueva_cita():
                 flash(e, 'danger')
             return render_template('nueva_cita_paciente.html')
 
-        # ── Asignar médico automáticamente según tipo de cita ─────
+        # Asignar médico automáticamente según tipo de cita
         conn_med = get_connection()
         try:
             with conn_med.cursor() as cur:
@@ -118,7 +117,6 @@ def nueva_cita():
 
         id_medico = medico_row['id']
 
-        # ── Verificar disponibilidad de horario ───────────────────
         conn2 = get_connection()
         try:
             with conn2.cursor() as cur:
